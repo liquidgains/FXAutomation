@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Forex Signal Trader
 
 A full-stack trading dashboard for receiving, analyzing, and visualizing trading signals from Telegram, with Dockerized backend and modern React frontend.
@@ -62,3 +63,6 @@ https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=https://<YOUR_NGROK_
 ---
 
 **Happy Trading!** 
+=======
+# FXAutomation
+>>>>>>> 0fa0152b6d84628cbcbadb9ca1d718260fdf254c
