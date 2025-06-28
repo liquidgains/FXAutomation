@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  backend:
+    build: .
+    ports:
+      - "3000:3000"
+  ngrok:
+    image: wernight/ngrok
+    environment:
+      - NGROK_AUTHTOKEN=2wtt2m4nWYfGDAW7AWPrCVBOkMw_3ZgNKpTWDZTmQGjSnUvAJ
+      - NGROK_PORT=backend:3000
+    ports:
+      - "4040:4040" # ngrok web interface
+    depends_on:
+      - backend
