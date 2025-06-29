@@ -3,6 +3,7 @@ const cors = require('cors');
 const app = express();
 const PORT = 3000;
 const fetch = require('node-fetch');
+const { createClient } = require('@supabase/supabase-js');
 
 // Add CORS headers for frontend communication
 app.use(cors());
@@ -11,6 +12,10 @@ app.use(express.json());
 
 const messages = []; // Store received messages
 const signals = [];
+
+const supabaseUrl = 'https://kvgxaejazevkvekeatad.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2Z3hhZWphemV2a3Zla2VhdGFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyMjAzODksImV4cCI6MjA2Njc5NjM4OX0.JD6cMIk-TrXQdSkVtdRN-0sH86MCBupRThiJ5fqd6pg';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 function parseSignal(text) {
   // Example: "EURUSD BUY 1.0842"
@@ -23,12 +28,19 @@ function parseSignal(text) {
   };
 }
 
-app.post('/telegram-webhook', (req, res) => {
-  console.log('Received Telegram update:', req.body);
+app.post('/telegram-webhook', async (req, res) => {
   const msg = req.body.message?.text;
   if (msg) {
-    const signal = parseSignal(msg);
-    if (signal) signals.push(signal);
+    await supabase.from('signals').insert([
+      {
+        pair: 'N/A',
+        direction: 'N/A',
+        entry_price: 'N/A',
+        status: 'received',
+        text: msg,
+        timestamp: new Date().toISOString()
+      }
+    ]);
   }
   res.sendStatus(200);
 });
@@ -46,6 +58,10 @@ app.get('/messages', (req, res) => {
 });
 
 app.get('/signals', (req, res) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  res.set('Surrogate-Control', 'no-store');
   res.json(signals);
 });
 

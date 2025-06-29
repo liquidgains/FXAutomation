@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const TELEGRAM_API_URL = 'https://9ad7-1-39-26-143.ngrok-free.app/messages';
+const TELEGRAM_API_URL = 'https://fxautomation.onrender.com/messages';
 
 const TelegramMessages: React.FC = () => {
   const [messages, setMessages] = useState<any[]>([]);

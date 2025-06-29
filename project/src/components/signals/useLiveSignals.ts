@@ -1,18 +1,38 @@
 import { useEffect, useState } from 'react';
 
-const SIGNALS_API_URL = 'https://<your-ngrok-url>/signals'; // Replace with your actual ngrok URL
+export interface LiveSignal {
+  id: string | number;
+  pair?: string;
+  direction?: string;
+  entry_price?: string;
+  status?: string;
+  text?: string;
+  timestamp?: number;
+}
 
 export function useLiveSignals() {
-  const [signals, setSignals] = useState<any[]>([]);
+  const [signals, setSignals] = useState<LiveSignal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    const fetchSignals = () => {
-      fetch(SIGNALS_API_URL)
-        .then(res => res.json())
-        .then(setSignals);
-    };
     fetchSignals();
     const interval = setInterval(fetchSignals, 5000); // Poll every 5s
     return () => clearInterval(interval);
   }, []);
-  return signals;
+
+  async function fetchSignals() {
+    try {
+      const res = await fetch(`https://fxautomation.onrender.com/signals?ts=${Date.now()}`);
+      const data = await res.json();
+      setSignals(data);
+      setError(null);
+    } catch (err) {
+      setError('An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return { signals, loading, error, refreshSignals: fetchSignals };
 }

@@ -21,6 +21,13 @@ export default function TelegramSetup() {
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
 
   useEffect(() => {
+    const savedToken = localStorage.getItem('botToken');
+    const savedConnected = localStorage.getItem('botConnected');
+    if (savedToken && savedConnected === 'true') {
+      setBotToken(savedToken);
+      setConnected(true);
+      setConnectionStatus('connected');
+    }
     checkExistingConnection();
   }, [user]);
 
@@ -66,6 +73,14 @@ export default function TelegramSetup() {
     }
   };
 
+  const handleDisconnect = () => {
+    setConnected(false);
+    setBotToken('');
+    setConnectionStatus('disconnected');
+    localStorage.removeItem('botToken');
+    localStorage.removeItem('botConnected');
+  };
+
   const handleBotSetup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -74,7 +89,7 @@ export default function TelegramSetup() {
 
     try {
       // Test bot connection first
-      const response = await fetch('https://6a71-1-39-25-164.ngrok-free.app/test-telegram-bot', {
+      const response = await fetch('https://fxautomation.onrender.com/test-telegram-bot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: botToken }),
@@ -85,10 +100,11 @@ export default function TelegramSetup() {
         throw new Error('Bot connection test failed');
       }
 
-      // Optionally, set the webhook here (see below)
       setBotInfo(data.result);
       setConnected(true);
       setConnectionStatus('connected');
+      localStorage.setItem('botToken', botToken);
+      localStorage.setItem('botConnected', 'true');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to setup bot');
       setConnectionStatus('disconnected');
@@ -100,7 +116,7 @@ export default function TelegramSetup() {
   const testConnection = async (token: string) => {
     try {
       // Updated to use your actual ngrok URL
-      const response = await fetch('https://6a71-1-39-25-164.ngrok-free.app/test-telegram-bot', {
+      const response = await fetch('https://fxautomation.onrender.com/test-telegram-bot', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -242,6 +258,13 @@ export default function TelegramSetup() {
                 Setup MT5
               </button>
             </div>
+
+            <button
+              onClick={handleDisconnect}
+              className="mt-4 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-700"
+            >
+              Disconnect
+            </button>
           </div>
         )}
 
